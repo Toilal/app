@@ -70,7 +70,7 @@
         </label>
         <label>
           {{ $t("db_type") }}
-          <v-input id="db_type" class="input" disabled value="MySQL & Variants" />
+          <v-select id="db_type" v-model="values.db_type" :options="options.db_type" class="input"/>
         </label>
         <input type="submit" class="hidden" />
       </form>
@@ -90,8 +90,11 @@ export default {
   data() {
     return {
       activeTab: "project",
-
+      options: {
+        db_type: {mysql: 'MySQL & Variants', pgsql: 'PostgreSQL'}
+      },
       values: {
+        db_type: "mysql",
         db_host: "localhost",
         db_port: 3306,
         db_name: "directus",

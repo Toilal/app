@@ -1048,6 +1048,13 @@ export default {
     this.activeTab = this.existing ? "schema" : "interface";
   },
   methods: {
+    columnDefaultDatatype(type) {
+      return mapping[type][this.databaseVendor].default;
+    },
+    columnDefaultLength(type) {
+      let defaultDataType = datatypes[this.databaseVendor][this.columnDefaultDatatype(type)];
+      return defaultDataType.length ? defaultDataType.defaultLength : undefined;
+    },
     interfaceSubtitles(ext) {
       if (ext.types) {
         return this.$helpers.formatTitle(ext.types[0]);
@@ -1367,17 +1374,17 @@ export default {
           {
             field: "id",
             type: "integer",
-            datatype: "int",
+            datatype: this.columnDefaultDatatype("integer"),
+            length: this.columnDefaultLength("integer"),
             interface: "primary-key",
             primary_key: true,
             auto_increment: true,
-            signed: false,
-            length: 10
+            signed: false
           },
           {
             field: this.relationInfoM2M[0].field_many,
             type: this.primaryKeyFieldByCollection(this.relationInfoM2M[0].collection_one).type,
-            length: 10,
+            length: this.columnDefaultLength(this.primaryKeyFieldByCollection(this.relationInfoM2M[0].collection_one).type),
             datatype: this.primaryKeyFieldByCollection(this.relationInfoM2M[0].collection_one)
               .datatype,
             interface: null,
@@ -1386,8 +1393,8 @@ export default {
           },
           {
             field: this.relationInfoM2M[1].field_many,
-            type: this.primaryKeyFieldByCollection(this.relationInfoM2M[1].collection_one).type,
-            length: 10,
+            type: this.columnDefaultDatatype(this.primaryKeyFieldByCollection(this.relationInfoM2M[1].collection_one).type),
+            length: this.columnDefaultLength(this.primaryKeyFieldByCollection(this.relationInfoM2M[1].collection_one).type),
             datatype: this.primaryKeyFieldByCollection(this.relationInfoM2M[1].collection_one)
               .datatype,
             interface: null,
@@ -1400,14 +1407,14 @@ export default {
         id: {
           auto_increment: true,
           collection: this.createM2MjunctionName,
-          datatype: "int",
+          datatype: this.columnDefaultDatatype("integer"),
+          length: this.columnDefaultLength("integer"),
           default_value: null,
           field: "id",
           group: null,
           hidden_detail: true,
           hidden_browse: true,
           interface: "primary-key",
-          length: "10",
           locked: 0,
           note: null,
           options: null,
@@ -1427,6 +1434,7 @@ export default {
         collection: this.createM2MjunctionName,
         field: this.relationInfoM2M[0].field_many,
         datatype: this.primaryKeyFieldByCollection(this.relationInfoM2M[0].collection_one).datatype,
+        length: this.columnDefaultLength(this.primaryKeyFieldByCollection(this.relationInfoM2M[0].collection_one).type),
         unique: false,
         primary_key: false,
         auto_increment: false,
@@ -1445,13 +1453,13 @@ export default {
         readonly: false,
         width: 4,
         validation: null,
-        group: null,
-        length: 10
+        group: null
       };
       fieldDispatch[this.relationInfoM2M[1].field_many] = {
         collection: this.createM2MjunctionName,
         field: this.relationInfoM2M[1].field_many,
         datatype: this.primaryKeyFieldByCollection(this.relationInfoM2M[1].collection_one).datatype,
+        length: this.columnDefaultLength(this.primaryKeyFieldByCollection(this.relationInfoM2M[1].collection_one).type),
         unique: false,
         primary_key: false,
         auto_increment: false,
@@ -1470,8 +1478,7 @@ export default {
         readonly: false,
         width: 4,
         validation: null,
-        group: null,
-        length: 10
+        group: null
       };
       this.$api
         .createCollection(collectionData, {
